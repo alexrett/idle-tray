@@ -22,7 +22,7 @@ func loopStart() {
 	for {
 		db.idle = i.GetIdleTime()
 		db.activeWindow, _ = a.GetActiveWindowTitle()
-		systray.SetTitle(fmt.Sprintf("%s %d", db.activeWindow, db.idle))
+		fmt.Println(db)
 		time.Sleep(1 * time.Second)
 	}
 }
@@ -32,13 +32,13 @@ func main() {
 		fmt.Println("Finished onExit")
 	}
 	// Should be called at the very beginning of main().
-
-	systray.RunWithAppWindow("Lantern", 1024, 768, onReady, onExit)
+	go loopStart()
+	systray.RunWithAppWindow("Idler", 1024, 768, onReady, onExit)
 }
 
 func onReady() {
-	systray.SetTitle(fmt.Sprintf("%s %d", db.activeWindow, db.idle))
-	systray.SetTooltip("Lantern")
+	systray.SetTitle("Idler")
+	systray.SetTooltip("Idler")
 	mQuitOrig := systray.AddMenuItem("Quit", "Quit the whole app")
 	go func() {
 		<-mQuitOrig.ClickedCh
@@ -46,6 +46,4 @@ func onReady() {
 		systray.Quit()
 		fmt.Println("Finished quitting")
 	}()
-
-	go loopStart()
 }
