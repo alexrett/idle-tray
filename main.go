@@ -4,22 +4,26 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/alexrett/active-window"
 	"github.com/alexrett/idler"
 	"github.com/getlantern/systray"
 )
 
 type DB struct {
-	idle int
+	idle         int
+	activeWindow string
 }
 
-var db = DB{idle: 0}
+var db = DB{idle: 0, activeWindow: ""}
 
 func loopStart() {
 	i := idler.NewIdle()
+	a := activeWindow.ActiveWindow{}
 	for {
 		db.idle = i.GetIdleTime()
+		db.activeWindow, _ = a.GetActiveWindowTitle()
+		systray.SetTitle(fmt.Sprintf("%s %d", db.activeWindow, db.idle))
 		time.Sleep(1 * time.Second)
-		systray.SetTitle(fmt.Sprintf("IDLE %d", db.idle))
 	}
 }
 
@@ -33,7 +37,7 @@ func main() {
 }
 
 func onReady() {
-	systray.SetTitle(fmt.Sprintf("IDLE %d", db.idle))
+	systray.SetTitle(fmt.Sprintf("%s %d", db.activeWindow, db.idle))
 	systray.SetTooltip("Lantern")
 	mQuitOrig := systray.AddMenuItem("Quit", "Quit the whole app")
 	go func() {
